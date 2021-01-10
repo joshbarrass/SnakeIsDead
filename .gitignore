@@ -80,3 +80,7 @@ flycheck_*.el
 /Godeps/
 
 # End of https://www.toptal.com/developers/gitignore/api/go
+
+# specific files
+wasm_exec.js
+*.wasm
