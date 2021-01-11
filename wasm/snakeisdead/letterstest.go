@@ -9,15 +9,32 @@ import (
 	"github.com/markfarnan/go-canvas/canvas"
 )
 
-var cell = letters.NewCell([2]float64{20, 20}, [2]float64{20 + letters.DefaultWidth, 20 + letters.DefaultHeight}, []letters.Segment{
-	&letters.SegmentARisingStick{},
-	&letters.SegmentAVert{},
-	&letters.SegmentABar{},
-}, letters.ColorsDeath, letters.ColorsParadox)
+const LetterSpacing = 100
+
+func getCells(text string, topLeft [2]float64) ([]*letters.Cell, error) {
+	letterMap := letters.GetLetterMap()
+	cells := []*letters.Cell{}
+	for i, char := range text {
+		letterFunc, ok := letterMap[byte(char)]
+		if !ok {
+			return nil, fmt.Errorf("character '%s' not available", char)
+		}
+		cells = append(cells, letters.NewCell(
+			[2]float64{topLeft[0] + float64(LetterSpacing*i), topLeft[1]},
+			[2]float64{topLeft[0] + float64(LetterSpacing*i) + letters.DefaultWidth, topLeft[1] + letters.DefaultHeight},
+			letterFunc(),
+			letters.ColorsDeath,
+			letters.ColorsParadox,
+		))
+	}
+	return cells, nil
+}
+
+var cells, _ = getCells("SNA", [2]float64{20, 20})
 
 func testDraw(gc *draw2dimg.GraphicContext) bool {
 	// fill background
-	gc.SetFillColor(cell.DeathColors[0])
+	gc.SetFillColor(cells[0].DeathColors[0])
 	gc.MoveTo(0, 0)
 	gc.LineTo(0, 10000)
 	gc.LineTo(10000, 10000)
@@ -25,7 +42,9 @@ func testDraw(gc *draw2dimg.GraphicContext) bool {
 	gc.LineTo(0, 0)
 	gc.Fill()
 	// draw cell
-	cell.Draw(gc)
+	for _, cell := range cells {
+		cell.Draw(gc)
+	}
 	return true
 }
 
