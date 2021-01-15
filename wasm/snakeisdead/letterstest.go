@@ -9,6 +9,8 @@ import (
 	"github.com/markfarnan/go-canvas/canvas"
 )
 
+// LetterSpacing is the space in pixels between the left edge of
+// letters
 const LetterSpacing = 100
 
 func getCells(text string, topLeft [2]float64) ([]*letters.Cell, error) {
@@ -17,7 +19,7 @@ func getCells(text string, topLeft [2]float64) ([]*letters.Cell, error) {
 	for i, char := range text {
 		letterFunc, ok := letterMap[byte(char)]
 		if !ok {
-			return nil, fmt.Errorf("character '%s' not available", char)
+			return nil, fmt.Errorf("character '%s' not available", string(char))
 		}
 		cells = append(cells, letters.NewCell(
 			[2]float64{topLeft[0] + float64(LetterSpacing*i), topLeft[1]},
@@ -30,7 +32,7 @@ func getCells(text string, topLeft [2]float64) ([]*letters.Cell, error) {
 	return cells, nil
 }
 
-var cells, _ = getCells("SNA", [2]float64{20, 20})
+var cells, _ = getCells("SNAKE IS DEAD", [2]float64{20, 20})
 
 func testDraw(gc *draw2dimg.GraphicContext) bool {
 	// fill background

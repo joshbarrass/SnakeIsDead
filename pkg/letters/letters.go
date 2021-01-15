@@ -37,6 +37,14 @@ const (
 	IDNRightVert
 	IDARisingStick
 	IDABar
+	IDKUpper
+	IDKLower
+	IDELower
+	IDEMiddle
+	IDIMiddle
+	IDITop
+	IDIBottom
+	IDDCurve
 )
 
 var letterMap = map[byte]func() Letter{
@@ -44,8 +52,13 @@ var letterMap = map[byte]func() Letter{
 	'S': LetterS,
 	'N': LetterN,
 	'A': LetterA,
+	'K': LetterK,
+	'E': LetterE,
+	'I': LetterI,
+	'D': LetterD,
 }
 
+// GetLetterMap returns a map to get the functions corresponding to each letter
 func GetLetterMap() map[byte]func() Letter {
 	newMap := make(map[byte]func() Letter)
 	for key, val := range letterMap {
@@ -59,6 +72,7 @@ func GetLetterMap() map[byte]func() Letter {
 type Letter []Segment
 
 /* Space */
+
 // LetterSpace returns a blank collection of segments
 func LetterSpace() Letter {
 	return Letter{}
@@ -66,6 +80,8 @@ func LetterSpace() Letter {
 
 /* Letter S */
 
+// SStickLength is the length of the sticks on the tops and bottoms of
+// an S
 const SStickLength = 7
 
 // SegmentSUpperBar is the top bar on an S
@@ -188,8 +204,8 @@ func (seg *SegmentNBar) Draw(gc CellDrawer, cell *Cell) bool {
 	width := seg.Width()
 	gc.MoveTo(0, 0)
 	gc.LineTo(width-1, 0)
-	gc.LineTo(width-1, stickThickness)
-	gc.LineTo(0, stickThickness)
+	gc.LineTo(width-1, stickThickness-1)
+	gc.LineTo(0, stickThickness-1)
 	gc.LineTo(0, 0)
 	gc.Fill()
 	gc.Close()
@@ -230,6 +246,8 @@ func LetterN() Letter {
 
 /* Letter A */
 
+// ABarUpperHeight is the height of the line through the centre of an
+// A
 const ABarUpperHeight = DefaultHeight - 35
 
 // SegmentARisingStick is one of the parts of an A
@@ -294,4 +312,251 @@ func (seg *SegmentABar) ID() SegmentID { return IDABar }
 // LetterA returns all the segments for the letter A
 func LetterA() Letter {
 	return Letter{&SegmentARisingStick{}, &SegmentNRightVert{}, &SegmentABar{}}
+}
+
+/* Letter K */
+
+// SegmentKUpper is the upper part of a K
+type SegmentKUpper struct {
+	segment
+}
+
+// Draw defines the behaviour of the segment
+func (seg *SegmentKUpper) Draw(gc CellDrawer, cell *Cell) bool {
+	fillColor := cell.DeathColors[1]
+	gc.SetFillColor(color.RGBA{fillColor.R, fillColor.G, fillColor.B, 0xff})
+	width, height := seg.Width(), seg.Height()
+	gc.MoveTo(stickThickness-8.5, height/2-0.5)
+	gc.LineTo(width-1-stickThickness, 0)
+	gc.LineTo(width-1, 0)
+	gc.LineTo(2*stickThickness-8.5, height/2-0.5)
+	gc.LineTo(stickThickness-8.5, height/2-0.5)
+	gc.Fill()
+	gc.Close()
+
+	return true
+}
+
+// ID returns the ID of the segment
+func (seg *SegmentKUpper) ID() SegmentID { return IDKUpper }
+
+// SegmentKLower is the upper part of a K
+type SegmentKLower struct {
+	segment
+}
+
+// Draw defines the behaviour of the segment
+func (seg *SegmentKLower) Draw(gc CellDrawer, cell *Cell) bool {
+	fillColor := cell.DeathColors[1]
+	gc.SetFillColor(color.RGBA{fillColor.R, fillColor.G, fillColor.B, 0xff})
+	width, height := seg.Width(), seg.Height()
+	gc.MoveTo(stickThickness-8.5, height/2-1.5)
+	gc.LineTo(width-1-stickThickness, height-1)
+	gc.LineTo(width-1, height-1)
+	gc.LineTo(2*stickThickness-8.5, height/2-1.5)
+	gc.LineTo(stickThickness-8.5, height/2-1.5)
+	gc.Fill()
+	gc.Close()
+
+	return true
+}
+
+// ID returns the ID of the segment
+func (seg *SegmentKLower) ID() SegmentID { return IDKLower }
+
+// LetterK returns all the segments for the letter K
+func LetterK() Letter {
+	return Letter{&SegmentNLeftVert{}, &SegmentKUpper{}, &SegmentKLower{}}
+}
+
+/* Letter E */
+
+// EPointDepth is how far in the dip on the left of an E goes in
+const EPointDepth = 13
+
+// EEdgeDepth is how far in the centre line of the E is from the right
+const EEdgeDepth = 5
+
+// SegmentELower is the lower bar on an E
+type SegmentELower struct {
+	segment
+}
+
+// Draw defines the behaviour of the segment
+func (seg *SegmentELower) Draw(gc CellDrawer, cell *Cell) bool {
+	fillColor := cell.DeathColors[1]
+	gc.SetFillColor(color.RGBA{fillColor.R, fillColor.G, fillColor.B, 0xff})
+	width, height := seg.Width(), seg.Height()
+	gc.MoveTo(0, height-1)
+	gc.LineTo(width-1, height-1)
+	gc.LineTo(width-1, height-1-stickThickness)
+	gc.LineTo(0, height-1-stickThickness)
+	gc.LineTo(0, height-1)
+	gc.Fill()
+	gc.Close()
+
+	return true
+}
+
+// ID returns the ID of the segment
+func (seg *SegmentELower) ID() SegmentID { return IDELower }
+
+// SegmentEMiddle is the centre segment of an E
+type SegmentEMiddle struct {
+	segment
+}
+
+// Draw defines the behaviour of the segment
+func (seg *SegmentEMiddle) Draw(gc CellDrawer, cell *Cell) bool {
+	fillColor := cell.DeathColors[1]
+	gc.SetFillColor(color.RGBA{fillColor.R, fillColor.G, fillColor.B, 0xff})
+	width, height := seg.Width(), seg.Height()
+	// height := seg.Height()
+	gc.MoveTo(0, height-0.5-stickThickness)
+	gc.LineTo(EPointDepth-1, height/2-1)
+	gc.LineTo(0, stickThickness-1)
+	gc.LineTo(0, stickThickness-2)
+	gc.LineTo(stickThickness-1, stickThickness-2)
+	gc.LineTo(stickThickness-1, stickThickness-1)
+	gc.LineTo(stickThickness+EPointDepth-6, height/2-stickThickness/2-1)
+	gc.LineTo(width-1-EEdgeDepth, height/2-stickThickness/2-1)
+	gc.LineTo(width-1-EEdgeDepth, height/2+stickThickness/2-1)
+	gc.LineTo(stickThickness+EPointDepth-6, height/2+stickThickness/2-1)
+	gc.LineTo(stickThickness-1, height-0.5-stickThickness)
+	gc.LineTo(0, height-0.5-stickThickness)
+	gc.Fill()
+	gc.Close()
+
+	return true
+}
+
+// ID returns the ID of the segment
+func (seg *SegmentEMiddle) ID() SegmentID { return IDEMiddle }
+
+// LetterE returns all the segments for the letter E
+func LetterE() Letter {
+	return Letter{&SegmentNBar{}, &SegmentELower{}, &SegmentEMiddle{}}
+}
+
+/* Letter I */
+
+// IOverhang is how far the top bar of an I hangs over
+const IOverhang = 7
+
+// SegmentIMiddle is the line through the centre of an I
+type SegmentIMiddle struct {
+	segment
+}
+
+// Draw defines the behaviour of the segment
+func (seg *SegmentIMiddle) Draw(gc CellDrawer, cell *Cell) bool {
+	fillColor := cell.DeathColors[1]
+	gc.SetFillColor(color.RGBA{fillColor.R, fillColor.G, fillColor.B, 0xff})
+	width, height := seg.Width(), seg.Height()
+	gc.MoveTo(width/2-1-stickThickness/2, 0)
+	gc.LineTo(width/2-1+stickThickness/2, 0)
+	gc.LineTo(width/2-1+stickThickness/2, height-1)
+	gc.LineTo(width/2-1-stickThickness/2, height-1)
+	gc.LineTo(width/2-1-stickThickness/2, 0)
+	gc.Fill()
+	gc.Close()
+	return true
+}
+
+// ID returns the ID of the segment
+func (seg *SegmentIMiddle) ID() SegmentID { return IDIMiddle }
+
+// SegmentITop is the line atop an I
+type SegmentITop struct {
+	segment
+}
+
+// Draw defines the behaviour of the segment
+func (seg *SegmentITop) Draw(gc CellDrawer, cell *Cell) bool {
+	fillColor := cell.DeathColors[1]
+	gc.SetFillColor(color.RGBA{fillColor.R, fillColor.G, fillColor.B, 0xff})
+	width := seg.Width()
+	gc.MoveTo(width/2-1-stickThickness/2-IOverhang, 0)
+	gc.LineTo(width/2-1+stickThickness/2+IOverhang, 0)
+	gc.LineTo(width/2-1+stickThickness/2+IOverhang, stickThickness-1)
+	gc.LineTo(width/2-1-stickThickness/2-IOverhang, stickThickness-1)
+	gc.LineTo(width/2-1-stickThickness/2-IOverhang, 0)
+	gc.Fill()
+	gc.Close()
+	return true
+}
+
+// ID returns the ID of the segment
+func (seg *SegmentITop) ID() SegmentID { return IDITop }
+
+// SegmentIBottom is the line below an I
+type SegmentIBottom struct {
+	segment
+}
+
+// Draw defines the behaviour of the segment
+func (seg *SegmentIBottom) Draw(gc CellDrawer, cell *Cell) bool {
+	fillColor := cell.DeathColors[1]
+	gc.SetFillColor(color.RGBA{fillColor.R, fillColor.G, fillColor.B, 0xff})
+	width, height := seg.Width(), seg.Height()
+	gc.MoveTo(width/2-1-stickThickness/2-IOverhang, height-1)
+	gc.LineTo(width/2-1+stickThickness/2+IOverhang, height-1)
+	gc.LineTo(width/2-1+stickThickness/2+IOverhang, height-stickThickness-1)
+	gc.LineTo(width/2-1-stickThickness/2-IOverhang, height-stickThickness-1)
+	gc.LineTo(width/2-1-stickThickness/2-IOverhang, height-1)
+	gc.Fill()
+	gc.Close()
+	return true
+}
+
+// ID returns the ID of the segment
+func (seg *SegmentIBottom) ID() SegmentID { return IDIBottom }
+
+// LetterI returns all the segments for the letter I
+func LetterI() Letter {
+	return Letter{&SegmentIMiddle{}, &SegmentITop{}, &SegmentIBottom{}}
+}
+
+/* Letter D */
+
+// Sizes a D
+const (
+	DGapThinnest    = 5
+	DDiagonalHeight = DefaultHeight / 4
+)
+
+// SegmentDCurve is the curved line of a D
+type SegmentDCurve struct {
+	segment
+}
+
+// Draw defines the behaviour of the segment
+func (seg *SegmentDCurve) Draw(gc CellDrawer, cell *Cell) bool {
+	fillColor := cell.DeathColors[1]
+	gc.SetFillColor(color.RGBA{fillColor.R, fillColor.G, fillColor.B, 0xff})
+	width, height := seg.Width(), seg.Height()
+	gc.MoveTo(0, 0)
+	gc.LineTo(width-stickThickness-1, 0)
+	gc.LineTo(width-1, DDiagonalHeight-1)
+	gc.LineTo(width-1, height-DDiagonalHeight-1)
+	gc.LineTo(width-stickThickness-1, height-1)
+	gc.LineTo(0, height-1)
+	gc.LineTo(0, height-stickThickness-1)
+	gc.LineTo(stickThickness-1+DGapThinnest, height-stickThickness-1)
+	gc.LineTo(width-1-stickThickness, height-11-stickThickness)
+	gc.LineTo(width-1-stickThickness, stickThickness+9)
+	gc.LineTo(stickThickness-1+DGapThinnest, stickThickness-1)
+	gc.LineTo(0, stickThickness-1)
+	gc.LineTo(0, 0)
+	gc.Fill()
+	gc.Close()
+	return true
+}
+
+// ID returns the ID of the segment
+func (seg *SegmentDCurve) ID() SegmentID { return IDDCurve }
+
+// LetterD returns all the segments for the letter D
+func LetterD() Letter {
+	return Letter{&SegmentNLeftVert{}, &SegmentDCurve{}}
 }
